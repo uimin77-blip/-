@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Let's be Open Vessel!!</title>
+<link rel="apple-touch-icon" href="icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Open Vessel">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#16a34a">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{
@@ -12,8 +17,6 @@ body{
   min-height:100vh;
   -webkit-font-smoothing:antialiased;
 }
-
-/* ── HEADER ── */
 header{
   background:linear-gradient(150deg,#1a3a8f,#2563eb,#3b82f6);
   color:#fff;
@@ -27,23 +30,17 @@ header .sub{font-size:11px;opacity:.75;margin-top:2px;}
 .prog-bar{flex:1;height:7px;background:rgba(255,255,255,.25);border-radius:99px;overflow:hidden;}
 .prog-fill{height:100%;background:#4ade80;border-radius:99px;transition:width .4s ease;width:0%;}
 .prog-txt{font-size:12px;font-weight:700;white-space:nowrap;}
-
-/* ── MAIN ── */
 main{padding:8px 7px 28px;max-width:480px;margin:0 auto;}
-
 .wk-label{
   font-size:10px;font-weight:700;color:#94a3b8;
   letter-spacing:1.2px;text-transform:uppercase;
   margin:12px 0 4px 2px;
 }
-
 .wk-row{
   display:grid;
   grid-template-columns:repeat(5,1fr);
   gap:4px;
 }
-
-/* ── DAY BUTTON ── */
 .btn{
   background:#fff;
   border:1.5px solid #dde4f0;
@@ -60,8 +57,6 @@ main{padding:8px 7px 28px;max-width:480px;margin:0 auto;}
   touch-action:manipulation;
 }
 .btn:active{transform:scale(.91);}
-
-/* states */
 .btn.done{
   background:linear-gradient(145deg,#f0fdf4,#dcfce7);
   border-color:#86efac;
@@ -81,8 +76,6 @@ main{padding:8px 7px 28px;max-width:480px;margin:0 auto;}
   border-color:#60a5fa;
   box-shadow:0 0 0 2px rgba(96,165,250,.3);
 }
-
-/* inner text */
 .dow{font-size:9px;font-weight:600;color:#94a3b8;letter-spacing:.4px;}
 .date{font-size:14px;font-weight:800;color:#1e293b;line-height:1;}
 .bible{
@@ -95,8 +88,6 @@ main{padding:8px 7px 28px;max-width:480px;margin:0 auto;}
 .btn.done .dow{color:#4ade80;}
 .btn.holiday .bible{color:#dc2626;font-weight:700;font-size:9px;}
 .btn.special .bible{color:#d97706;font-weight:700;font-size:8px;}
-
-/* check badge */
 .ck{
   position:absolute;top:3px;right:3px;
   width:14px;height:14px;
@@ -111,8 +102,6 @@ main{padding:8px 7px 28px;max-width:480px;margin:0 auto;}
   border-bottom:1.5px solid #fff;
   transform:rotate(-45deg) translate(0.5px,-0.5px);
 }
-
-/* ── FOOTER ── */
 footer{
   text-align:center;
   padding:0 7px 20px;
@@ -128,7 +117,6 @@ footer{
 </style>
 </head>
 <body>
-
 <header>
   <h1>⛵ Let's be Open Vessel!!</h1>
   <div class="sub">5월 16일 ~ 7월 24일 · 성경 읽기 플랜</div>
@@ -137,10 +125,8 @@ footer{
     <span class="prog-txt" id="pTxt">0 / 49</span>
   </div>
 </header>
-
 <main id="main"></main>
 <footer><button class="reset" onclick="resetAll()">전체 초기화</button></footer>
-
 <script>
 const PLAN = [
   { wk:'5월 3주', days:[
@@ -214,60 +200,35 @@ const PLAN = [
     { d:'7/24', dow:'금', v:'계 19:1-22:21' },
   ]},
 ];
-
 const STORAGE_KEY = 'openvessel_2025';
-
-function loadState(){
-  try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'); }
-  catch{ return {}; }
-}
+function loadState(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'); } catch{ return {}; } }
 function saveState(s){ localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
-
-function todayKey(){
-  const t = new Date();
-  return `${t.getMonth()+1}/${t.getDate()}`;
-}
-
-function countTotal(){
-  return PLAN.flatMap(w=>w.days).filter(d=>!d.holiday).length;
-}
-
+function todayKey(){ const t = new Date(); return `${t.getMonth()+1}/${t.getDate()}`; }
+function countTotal(){ return PLAN.flatMap(w=>w.days).filter(d=>!d.holiday).length; }
 function render(){
   const state = loadState();
   const today = todayKey();
   const total = countTotal();
   let done = 0;
-
   const main = document.getElementById('main');
   main.innerHTML = '';
-
   for(const week of PLAN){
     const wlabel = document.createElement('div');
     wlabel.className = 'wk-label';
     wlabel.textContent = week.wk;
     main.appendChild(wlabel);
-
     const row = document.createElement('div');
     row.className = 'wk-row';
-
     for(const day of week.days){
       const checked = !!state[day.d];
       if(!day.holiday && checked) done++;
-
       const btn = document.createElement('button');
       btn.className = 'btn' +
         (checked ? ' done' : '') +
         (day.special ? ' special' : '') +
         (day.holiday ? ' holiday' : '') +
         (day.d === today && !day.holiday ? ' today' : '');
-
-      btn.innerHTML = `
-        <div class="ck"></div>
-        <div class="dow">${day.dow}</div>
-        <div class="date">${day.d}</div>
-        <div class="bible">${day.v}</div>
-      `;
-
+      btn.innerHTML = `<div class="ck"></div><div class="dow">${day.dow}</div><div class="date">${day.d}</div><div class="bible">${day.v}</div>`;
       if(!day.holiday){
         btn.addEventListener('click', ()=>{
           const s = loadState();
@@ -276,25 +237,20 @@ function render(){
           render();
         });
       }
-
       row.appendChild(btn);
     }
     main.appendChild(row);
   }
-
-  // progress
   const pct = total ? (done/total*100).toFixed(0) : 0;
   document.getElementById('pFill').style.width = pct + '%';
   document.getElementById('pTxt').textContent = `${done} / ${total}`;
 }
-
 function resetAll(){
   if(confirm('모든 체크를 초기화할까요?')){
     localStorage.removeItem(STORAGE_KEY);
     render();
   }
 }
-
 render();
 </script>
 </body>
