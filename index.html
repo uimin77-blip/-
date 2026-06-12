@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Let's be Open Vessel!!</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  background:#eef2f7;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ── HEADER ── */
+header{
+  background:linear-gradient(150deg,#1a3a8f,#2563eb,#3b82f6);
+  color:#fff;
+  padding:14px 14px 10px;
+  position:sticky;top:0;z-index:99;
+  box-shadow:0 3px 12px rgba(30,58,180,.35);
+}
+header h1{font-size:17px;font-weight:800;letter-spacing:-.3px;}
+header .sub{font-size:11px;opacity:.75;margin-top:2px;}
+.prog-row{display:flex;align-items:center;gap:8px;margin-top:8px;}
+.prog-bar{flex:1;height:7px;background:rgba(255,255,255,.25);border-radius:99px;overflow:hidden;}
+.prog-fill{height:100%;background:#4ade80;border-radius:99px;transition:width .4s ease;width:0%;}
+.prog-txt{font-size:12px;font-weight:700;white-space:nowrap;}
+
+/* ── MAIN ── */
+main{padding:8px 7px 28px;max-width:480px;margin:0 auto;}
+
+.wk-label{
+  font-size:10px;font-weight:700;color:#94a3b8;
+  letter-spacing:1.2px;text-transform:uppercase;
+  margin:12px 0 4px 2px;
+}
+
+.wk-row{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:4px;
+}
+
+/* ── DAY BUTTON ── */
+.btn{
+  background:#fff;
+  border:1.5px solid #dde4f0;
+  border-radius:10px;
+  padding:6px 2px 5px;
+  display:flex;flex-direction:column;align-items:center;
+  gap:2px;
+  cursor:pointer;
+  min-height:68px;
+  position:relative;
+  transition:transform .12s,background .15s,border-color .15s;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+  touch-action:manipulation;
+}
+.btn:active{transform:scale(.91);}
+
+/* states */
+.btn.done{
+  background:linear-gradient(145deg,#f0fdf4,#dcfce7);
+  border-color:#86efac;
+}
+.btn.special{
+  background:linear-gradient(145deg,#fff7ed,#ffedd5);
+  border-color:#fdba74;
+  cursor:pointer;
+}
+.btn.holiday{
+  background:linear-gradient(145deg,#fef2f2,#fee2e2);
+  border-color:#fca5a5;
+  cursor:default;
+  pointer-events:none;
+}
+.btn.today:not(.done){
+  border-color:#60a5fa;
+  box-shadow:0 0 0 2px rgba(96,165,250,.3);
+}
+
+/* inner text */
+.dow{font-size:9px;font-weight:600;color:#94a3b8;letter-spacing:.4px;}
+.date{font-size:14px;font-weight:800;color:#1e293b;line-height:1;}
+.bible{
+  font-size:7.5px;color:#64748b;
+  text-align:center;line-height:1.4;
+  word-break:keep-all;margin-top:1px;
+  padding:0 1px;
+}
+.btn.done .date,.btn.done .bible{color:#15803d;}
+.btn.done .dow{color:#4ade80;}
+.btn.holiday .bible{color:#dc2626;font-weight:700;font-size:9px;}
+.btn.special .bible{color:#d97706;font-weight:700;font-size:8px;}
+
+/* check badge */
+.ck{
+  position:absolute;top:3px;right:3px;
+  width:14px;height:14px;
+  background:#22c55e;border-radius:50%;
+  display:none;place-items:center;
+}
+.btn.done .ck{display:grid;}
+.ck::after{
+  content:'';
+  display:block;width:7px;height:5px;
+  border-left:1.5px solid #fff;
+  border-bottom:1.5px solid #fff;
+  transform:rotate(-45deg) translate(0.5px,-0.5px);
+}
+
+/* ── FOOTER ── */
+footer{
+  text-align:center;
+  padding:0 7px 20px;
+  max-width:480px;margin:0 auto;
+}
+.reset{
+  width:100%;padding:11px;
+  background:#fff;border:1px solid #e2e8f0;
+  border-radius:10px;font-size:13px;color:#94a3b8;
+  cursor:pointer;font-family:inherit;
+}
+.reset:active{opacity:.6;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⛵ Let's be Open Vessel!!</h1>
+  <div class="sub">5월 16일 ~ 7월 24일 · 성경 읽기 플랜</div>
+  <div class="prog-row">
+    <div class="prog-bar"><div class="prog-fill" id="pFill"></div></div>
+    <span class="prog-txt" id="pTxt">0 / 49</span>
+  </div>
+</header>
+
+<main id="main"></main>
+<footer><button class="reset" onclick="resetAll()">전체 초기화</button></footer>
+
+<script>
+const PLAN = [
+  { wk:'5월 3주', days:[
+    { d:'5/18', dow:'월', v:'롬 1:1-2:17' },
+    { d:'5/19', dow:'화', v:'롬 2:18-4:6' },
+    { d:'5/20', dow:'수', v:'롬 4:7-6:9' },
+    { d:'5/21', dow:'목', v:'롬 6:10-8:10' },
+    { d:'5/22', dow:'금', v:'롬 8:11-9:20' },
+  ]},
+  { wk:'5월 4주', days:[
+    { d:'5/25', dow:'월', v:'롬 9:21-11:15' },
+    { d:'5/26', dow:'화', v:'롬 11:16-13:7' },
+    { d:'5/27', dow:'수', v:'롬 13:8-15:19' },
+    { d:'5/28', dow:'목', v:'롬 15:20-고전 1:8' },
+    { d:'5/29', dow:'금', v:'고전 2:9-5:10' },
+  ]},
+  { wk:'6월 1주', days:[
+    { d:'6/1',  dow:'월', v:'고전 5:11-6:2' },
+    { d:'6/2',  dow:'화', v:'고전 6:5-7:31' },
+    { d:'6/3',  dow:'수', v:'기도', special:true },
+    { d:'6/4',  dow:'목', v:'고전 7:32-9:27' },
+    { d:'6/5',  dow:'금', v:'고전 10:1-11:6' },
+  ]},
+  { wk:'6월 2주', days:[
+    { d:'6/8',  dow:'월', v:'고전 11:7-12:31' },
+    { d:'6/9',  dow:'화', v:'고전 13:1-14:36' },
+    { d:'6/10', dow:'수', v:'고전 14:37-15:49' },
+    { d:'6/11', dow:'목', v:'고전 16:1-고후 1:11' },
+    { d:'6/12', dow:'금', v:'고후 1:12-4:4' },
+  ]},
+  { wk:'6월 3주', days:[
+    { d:'6/15', dow:'월', v:'고후 4:5-6:13' },
+    { d:'6/16', dow:'화', v:'고후 6:14-9:5' },
+    { d:'6/17', dow:'수', v:'고후 9:6-11:15' },
+    { d:'6/18', dow:'목', v:'고후 11:16-13:14' },
+    { d:'6/19', dow:'금', v:'갈 1:1-3:9' },
+  ]},
+  { wk:'6월 4주', days:[
+    { d:'6/22', dow:'월', v:'갈 3:10-5:12' },
+    { d:'6/23', dow:'화', v:'갈 5:13-엡 1:14' },
+    { d:'6/24', dow:'수', v:'엡 1:15-4:6' },
+    { d:'6/25', dow:'목', v:'엡 4:7-6:9' },
+    { d:'6/26', dow:'금', v:'엡 6:10-빌 2:11' },
+  ]},
+  { wk:'7월 1주', days:[
+    { d:'6/29', dow:'월', v:'빌 2:12-골 1:29' },
+    { d:'6/30', dow:'화', v:'골 2:1-살전 2:12' },
+    { d:'7/1',  dow:'수', v:'살전 2:13-살후 3:18' },
+    { d:'7/2',  dow:'목', v:'딤전 1:1-4:16' },
+    { d:'7/3',  dow:'금', v:'딤전 5:1-딤후 1:18' },
+  ]},
+  { wk:'7월 2주', days:[
+    { d:'7/6',  dow:'월', v:'딤후 2:1-딛 3:15' },
+    { d:'7/7',  dow:'화', v:'몬 1:1-히 2:18' },
+    { d:'7/8',  dow:'수', v:'히 3:1-6:20' },
+    { d:'7/9',  dow:'목', v:'히 7:1-9:28' },
+    { d:'7/10', dow:'금', v:'히 10:1-12:29' },
+  ]},
+  { wk:'7월 3주', days:[
+    { d:'7/13', dow:'월', v:'히 13:1-약 2:26' },
+    { d:'7/14', dow:'화', v:'약 3:1-벧전 2:12' },
+    { d:'7/15', dow:'수', v:'벧전 2:13-벧후 3:18' },
+    { d:'7/16', dow:'목', v:'요일 1:1-5:21' },
+    { d:'7/17', dow:'금', v:'제헌절', holiday:true },
+  ]},
+  { wk:'7월 4주', days:[
+    { d:'7/20', dow:'월', v:'요이·요삼·유다서' },
+    { d:'7/21', dow:'화', v:'계 1:1-5:14' },
+    { d:'7/22', dow:'수', v:'계 6:1-12:17' },
+    { d:'7/23', dow:'목', v:'계 13:1-18:24' },
+    { d:'7/24', dow:'금', v:'계 19:1-22:21' },
+  ]},
+];
+
+const STORAGE_KEY = 'openvessel_2025';
+
+function loadState(){
+  try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'); }
+  catch{ return {}; }
+}
+function saveState(s){ localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
+
+function todayKey(){
+  const t = new Date();
+  return `${t.getMonth()+1}/${t.getDate()}`;
+}
+
+function countTotal(){
+  return PLAN.flatMap(w=>w.days).filter(d=>!d.holiday).length;
+}
+
+function render(){
+  const state = loadState();
+  const today = todayKey();
+  const total = countTotal();
+  let done = 0;
+
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+
+  for(const week of PLAN){
+    const wlabel = document.createElement('div');
+    wlabel.className = 'wk-label';
+    wlabel.textContent = week.wk;
+    main.appendChild(wlabel);
+
+    const row = document.createElement('div');
+    row.className = 'wk-row';
+
+    for(const day of week.days){
+      const checked = !!state[day.d];
+      if(!day.holiday && checked) done++;
+
+      const btn = document.createElement('button');
+      btn.className = 'btn' +
+        (checked ? ' done' : '') +
+        (day.special ? ' special' : '') +
+        (day.holiday ? ' holiday' : '') +
+        (day.d === today && !day.holiday ? ' today' : '');
+
+      btn.innerHTML = `
+        <div class="ck"></div>
+        <div class="dow">${day.dow}</div>
+        <div class="date">${day.d}</div>
+        <div class="bible">${day.v}</div>
+      `;
+
+      if(!day.holiday){
+        btn.addEventListener('click', ()=>{
+          const s = loadState();
+          s[day.d] = !s[day.d];
+          saveState(s);
+          render();
+        });
+      }
+
+      row.appendChild(btn);
+    }
+    main.appendChild(row);
+  }
+
+  // progress
+  const pct = total ? (done/total*100).toFixed(0) : 0;
+  document.getElementById('pFill').style.width = pct + '%';
+  document.getElementById('pTxt').textContent = `${done} / ${total}`;
+}
+
+function resetAll(){
+  if(confirm('모든 체크를 초기화할까요?')){
+    localStorage.removeItem(STORAGE_KEY);
+    render();
+  }
+}
+
+render();
+</script>
+</body>
+</html>
